@@ -1,2 +1,2 @@
 azure-batch==3.0.0
-pyyaml==3.12
+pyyaml==5.4
