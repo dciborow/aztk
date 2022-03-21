@@ -49,10 +49,7 @@ def zip_file_to_dir(file: str, directory: str, zipf: str, binary: bool = False):
 
 
 def __includeFile(filename: str) -> bool:
-    if fnmatch.fnmatch(filename, '*.pyc'):
-        return False
-
-    return True
+    return not fnmatch.fnmatch(filename, '*.pyc')
 
 
 def __create_zip():
@@ -76,7 +73,7 @@ def __upload(blob_client):
 def __add_custom_scripts(zipf, custom_scripts):
     data = []
     for index, custom_script in enumerate(custom_scripts):
-        new_file_name = str(index) + '_' + os.path.basename(custom_script.script)
+        new_file_name = f'{str(index)}_{os.path.basename(custom_script.script)}'
         data.append(dict(script=new_file_name, runOn=str(custom_script.run_on)))
         with io.open(custom_script.script, 'r') as f:
             zipf.writestr(os.path.join('custom-scripts', new_file_name), f.read().replace('\r\n', '\n'))

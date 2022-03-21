@@ -24,15 +24,11 @@ def execute(args: typing.NamedTuple):
     aztk = Aztk()
 
     log.info('-------------------------------------------')
-    log.info('spark cluster id:    {}'.format(args.cluster_id))
-    log.info('username:            {}'.format(args.username))
+    log.info(f'spark cluster id:    {args.cluster_id}')
+    log.info(f'username:            {args.username}')
     log.info('-------------------------------------------')
 
-    if args.ssh_key:
-        ssh_key = args.ssh_key
-    else:
-        ssh_key = aztk.client.secrets_config.ssh_pub_key
-    
+    ssh_key = args.ssh_key or aztk.client.secrets_config.ssh_pub_key
     ssh_key, password = utils.get_ssh_key_or_prompt(ssh_key, args.username, args.password, aztk.client.secrets_config)
 
     aztk.client.create_user(

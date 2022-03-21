@@ -55,16 +55,17 @@ def setup_parser(parser: argparse.ArgumentParser):
 
 
 def execute(args: typing.NamedTuple):
-    actions = {}
+    actions = {
+        ClusterAction.create: cluster_create.execute,
+        ClusterAction.add_user: cluster_add_user.execute,
+        ClusterAction.delete: cluster_delete.execute,
+        ClusterAction.get: cluster_get.execute,
+        ClusterAction.list: cluster_list.execute,
+        ClusterAction.ssh: cluster_ssh.execute,
+        ClusterAction.submit: cluster_submit.execute,
+        ClusterAction.app_logs: cluster_app_logs.execute,
+    }
 
-    actions[ClusterAction.create] = cluster_create.execute
-    actions[ClusterAction.add_user] = cluster_add_user.execute
-    actions[ClusterAction.delete] = cluster_delete.execute
-    actions[ClusterAction.get] = cluster_get.execute
-    actions[ClusterAction.list] = cluster_list.execute
-    actions[ClusterAction.ssh] = cluster_ssh.execute
-    actions[ClusterAction.submit] = cluster_submit.execute
-    actions[ClusterAction.app_logs] = cluster_app_logs.execute
 
     func = actions[args.cluster_action]
     func(args)

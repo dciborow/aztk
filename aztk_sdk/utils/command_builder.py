@@ -46,8 +46,7 @@ class CommandBuilder:
             if option.value is not None:
                 cmd.append(option.value)
 
-        for arg in self.arguments:
-            cmd.append(arg)
+        cmd.extend(iter(self.arguments))
         return cmd
 
     def to_str(self):

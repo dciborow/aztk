@@ -37,7 +37,7 @@ def make_batch_client(batch_config: BatchConfig):
     """
     # Validate the given config
     _validate_batch_config(batch_config)
-    
+
     # Set up SharedKeyCredentials
     credentials = batch_auth.SharedKeyCredentials(
         batch_config.account_name,
@@ -50,7 +50,7 @@ def make_batch_client(batch_config: BatchConfig):
 
     # Set retry policy
     batch_client.config.retry_policy.retries = 5
-    batch_client.config.add_user_agent('aztk/{}'.format(__version__))
+    batch_client.config.add_user_agent(f'aztk/{__version__}')
 
     return batch_client
 
@@ -74,10 +74,7 @@ def make_blob_client(blob_config: BlobConfig):
     # Validate Blob config
     _validate_blob_config(blob_config)
 
-    # Set up BlockBlobStorage
-    blob_client = blob.BlockBlobService(
+    return blob.BlockBlobService(
         account_name=blob_config.account_name,
         account_key=blob_config.account_key,
         endpoint_suffix=blob_config.account_suffix)
-
-    return blob_client

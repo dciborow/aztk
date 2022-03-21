@@ -35,21 +35,16 @@ def __wait_for_app_to_be_running(batch_client, cluster_id: str, application_name
 def __get_output_file_properties(batch_client, cluster_id: str, application_name: str):
     while True:
         try:
-            file = helpers.get_file_properties(
+            return helpers.get_file_properties(
                 cluster_id, application_name, output_file, batch_client)
-            return file
         except batch_error.BatchErrorException as e:
-            if e.response.status_code == 404:
-                # TODO: log
-                time.sleep(5)
-                continue
-            else:
+            if e.response.status_code != 404:
                 raise e
+            # TODO: log
+            time.sleep(5)
+            continue
 
 def get_log(batch_client, cluster_id: str, application_name: str, tail=False, current_bytes: int = 0):
-    job_id = cluster_id
-    task_id = application_name
-
     task = __wait_for_app_to_be_running(batch_client, cluster_id, application_name)
 
     if not __check_task_node_exist(batch_client, cluster_id, task):
@@ -58,27 +53,26 @@ def get_log(batch_client, cluster_id: str, application_name: str, tail=False, cu
     file = __get_output_file_properties(batch_client, cluster_id, application_name)
     target_bytes = file.content_length
 
-    if target_bytes != current_bytes:
-        ocp_range = None
-
-        if tail:
-            ocp_range = "bytes={0}-{1}".format(
-                current_bytes, target_bytes - 1)
-
-        stream = batch_client.file.get_from_task(
-            job_id, task_id, output_file, batch_models.FileGetFromTaskOptions(ocp_range=ocp_range))
-        content = helpers.read_stream_as_string(stream)
-
-        return models.AppLogsModel(
-            name=application_name,
-            cluster_id=cluster_id,
-            application_state=task.state._value_,
-            log=content,
-            total_bytes=target_bytes)
-    else:
+    if target_bytes == current_bytes:
         return models.AppLogsModel(
             name=application_name,
             cluster_id=cluster_id,
             application_state=task.state._value_,
             log='',
             total_bytes=target_bytes)
+    ocp_range = "bytes={0}-{1}".format(
+                current_bytes, target_bytes - 1) if tail else None
+    job_id = cluster_id
+    task_id = application_name
+
+    stream = batch_client.file.get_from_task(
+        job_id, task_id, output_file, batch_models.FileGetFromTaskOptions(ocp_range=ocp_range))
+    content = helpers.read_stream_as_string(stream)
+
+    return models.AppLogsModel(
+        name=task_id,
+        cluster_id=job_id,
+        application_state=task.state._value_,
+        log=content,
+        total_bytes=target_bytes,
+    )

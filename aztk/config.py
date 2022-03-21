@@ -39,28 +39,22 @@ class SecretsConfig:
             self._merge_dict(secrets_config)
 
     def _merge_dict(self, secrets_config):
-        # Ensure all necessary fields are provided
-        batch = secrets_config.get('batch')
-        if batch:
+        if batch := secrets_config.get('batch'):
             self.batch_account_name = batch.get('batchaccountname')
             self.batch_account_key = batch.get('batchaccountkey')
             self.batch_service_url = batch.get('batchserviceurl')
 
-        storage = secrets_config.get('storage')
-        if storage:
+        if storage := secrets_config.get('storage'):
             self.storage_account_name = storage.get('storageaccountname')
             self.storage_account_key = storage.get('storageaccountkey')
             self.storage_account_suffix = storage.get('storageaccountsuffix')
 
-        docker_config = secrets_config.get('docker')
-        if docker_config:
+        if docker_config := secrets_config.get('docker'):
             self.docker_endpoint = docker_config.get('endpoint')
             self.docker_username = docker_config.get('username')
             self.docker_password = docker_config.get('password')
 
-        default_config = secrets_config.get('default')
-        # Check for ssh keys if they are provided
-        if default_config:
+        if default_config := secrets_config.get('default'):
             self.ssh_priv_key = default_config.get('ssh_priv_key')
             self.ssh_pub_key = default_config.get('ssh_pub_key')
 
