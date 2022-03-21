@@ -122,12 +122,13 @@ class Client:
         """
         pools = self.batch_client.pool.list()
         software_metadata = (constants.AZTK_SOFTWARE_METADATA_KEY, software_metadata_key)
-        
-        aztk_pools = []
-        for pool in [pool for pool in pools if pool.metadata]:
-            if software_metadata in [(metadata.name, metadata.value) for metadata in pool.metadata]:
-                aztk_pools.append(pool)
-        return aztk_pools
+
+        return [
+            pool
+            for pool in [pool for pool in pools if pool.metadata]
+            if software_metadata
+            in [(metadata.name, metadata.value) for metadata in pool.metadata]
+        ]
     
     def __create_user(self, pool_id: str, node_id: str, username: str, password: str = None, ssh_key: str = None) -> str:
         """

@@ -19,11 +19,14 @@ def get_master_node_id(pool: batchmodels.CloudPool):
     if pool.metadata is None:
         return None
 
-    for metadata in pool.metadata:
-        if metadata.name == MASTER_NODE_METADATA_KEY:
-            return metadata.value
-
-    return None
+    return next(
+        (
+            metadata.value
+            for metadata in pool.metadata
+            if metadata.name == MASTER_NODE_METADATA_KEY
+        ),
+        None,
+    )
 
 def try_assign_self_as_master(client: batch.BatchServiceClient, pool: batchmodels.CloudPool):
     current_metadata = pool.metadata or []
@@ -51,11 +54,9 @@ def find_master(client: batch.BatchServiceClient) -> bool:
     # if not config.is_dedicated:
     # return False
 
-    for i in range(0, 5):
+    for i in range(5):
         pool = client.pool.get(config.pool_id)
-        master = get_master_node_id(pool)
-
-        if master:
+        if master := get_master_node_id(pool):
             if master == config.node_id:
                 print("Node is already the master '{0}'".format(master))
                 return True

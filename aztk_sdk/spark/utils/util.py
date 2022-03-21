@@ -24,9 +24,9 @@ def wait_for_master_to_be_ready(client, cluster_id: str):
     while True:
         if not master_node_id:
             master_node_id = client.get_cluster(cluster_id).master_node_id
-            if not master_node_id:
-                time.sleep(5)
-                continue
+        if not master_node_id:
+            time.sleep(5)
+            continue
 
         master_node = client.batch_client.compute_node.get(cluster_id, master_node_id)
 

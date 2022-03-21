@@ -71,13 +71,10 @@ def setup_parser(parser: argparse.ArgumentParser):
 
 def execute(args: typing.NamedTuple):
     aztk = Aztk()
-    jars = []
     py_files = []
     files = []
 
-    if args.jars is not None:
-        jars = args.jars.replace(' ', '').split(',')
-
+    jars = args.jars.replace(' ', '').split(',') if args.jars is not None else []
     if args.py_files is not None:
         py_files = args.py_files.replace(' ', '').split(',')
 

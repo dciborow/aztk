@@ -43,13 +43,10 @@ def setup_connection():
     master_node = get_node(master_node_id)
 
     master_config_file = os.path.join(spark_conf_folder, "master")
-    master_file = open(master_config_file, 'w')
-
-    print("Adding master node ip {0} to config file '{1}'".format(
-        master_node.ip_address, master_config_file))
-    master_file.write("{0}\n".format(master_node.ip_address))
-
-    master_file.close()
+    with open(master_config_file, 'w') as master_file:
+        print("Adding master node ip {0} to config file '{1}'".format(
+            master_node.ip_address, master_config_file))
+        master_file.write("{0}\n".format(master_node.ip_address))
 
 
 def wait_for_master():
@@ -65,9 +62,8 @@ def wait_for_master():
 
         if master_node.state in [batchmodels.ComputeNodeState.idle, batchmodels.ComputeNodeState.running]:
             break
-        else:
-            print("{0} Still waiting on master", datetime.datetime.now())
-            time.sleep(10)
+        print("{0} Still waiting on master", datetime.datetime.now())
+        time.sleep(10)
 
 
 def start_spark_master():
@@ -84,12 +80,12 @@ def start_spark_master():
 def start_history_server():
     # configure the history server
     spark_event_log_enabled_key = 'spark.eventLog.enabled'
-    spark_event_log_directory_key = 'spark.eventLog.dir'
     path_to_spark_defaults_conf = os.path.join(spark_home, 'conf/spark-defaults.conf')
     properties = parse_configuration_file(path_to_spark_defaults_conf)
 
     # only enable the history server if it was enabled in the configuration file
     if spark_event_log_enabled_key in properties:
+        spark_event_log_directory_key = 'spark.eventLog.dir'
         if spark_event_log_directory_key in properties:
             configure_history_server_log_path(properties[spark_event_log_directory_key])
 
@@ -168,7 +164,7 @@ def copy_jars():
         for jar in jar_files:
             src = os.path.join(spark_default_path_src, jar)
             dest = os.path.join(spark_default_path_dest, jar)
-            print("copy {} to {}".format(src, dest))
+            print(f"copy {src} to {dest}")
             shutil.copyfile(src, dest)
     except Exception as e:
         print("Failed to copy jar files")
@@ -188,14 +184,14 @@ def parse_configuration_file(path_to_file: str):
 def configure_history_server_log_path(path_to_log_file):
         # Check if the file path starts with a local file extension
         # If so, create the path on disk otherwise ignore
-        print('Configuring spark history server log directory {}.'.format(path_to_log_file))
-        if path_to_log_file.startswith('file:/'):
-            # create the local path on disk
-            directory = path_to_log_file.replace('file:', '')
-            if os.path.exists(directory):
-                print('Skipping. Directory {} already exists.'.format(directory))
-            else:
-                print('Create direcotory {}.'.format(directory))
-                os.makedirs(directory)
+    print(f'Configuring spark history server log directory {path_to_log_file}.')
+    if path_to_log_file.startswith('file:/'):
+        # create the local path on disk
+        directory = path_to_log_file.replace('file:', '')
+        if os.path.exists(directory):
+            print(f'Skipping. Directory {directory} already exists.')
         else:
-            print('Skipping. The eventLog directory is not local.')
+            print(f'Create direcotory {directory}.')
+            os.makedirs(directory)
+    else:
+        print('Skipping. The eventLog directory is not local.')

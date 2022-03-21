@@ -68,7 +68,7 @@ def __cluster_install_cmd(zip_resource_file: batch_models.ResourceFile,
     """
     docker_repo = docker_repo or constants.DEFAULT_DOCKER_REPO
 
-    ret = [
+    return [
         'apt-get -y clean',
         'apt-get -y update',
         'apt-get install --fix-missing',
@@ -81,8 +81,6 @@ def __cluster_install_cmd(zip_resource_file: batch_models.ResourceFile,
             docker_repo,
             __docker_run_cmd(docker_repo)),
     ]
-
-    return ret
 
 def generate_cluster_start_task(
         spark_client,

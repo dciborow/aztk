@@ -233,12 +233,10 @@ def upload_blob_and_create_sas(
         expiry=expiry,
         timeout=timeout)
 
-    sas_url = blob_client.make_blob_url(
+    return blob_client.make_blob_url(
         container_name,
         blob_name,
         sas_token=sas_token)
-
-    return sas_url
 
 
 def wrap_commands_in_shell(commands):
@@ -249,8 +247,7 @@ def wrap_commands_in_shell(commands):
     :rtype: str
     :return: a shell wrapping commands
     """
-    return '/bin/bash -c \'set -e; set -o pipefail; {}; wait\''.format(
-        ';'.join(commands))
+    return f"/bin/bash -c 'set -e; set -o pipefail; {';'.join(commands)}; wait'"
 
 
 def get_connection_info(pool_id, node_id, batch_client):
@@ -282,17 +279,14 @@ def get_cluster_total_current_nodes(pool):
     return pool.current_dedicated_nodes + pool.current_low_priority_nodes
 
 
-def normalize_path(path: str)-> str:
+def normalize_path(path: str) -> str:
     """
     Convert a path in a path that will work well with blob storage and unix
     It will replace \ with / and remove relative .
     """
     path = os.path.abspath(os.path.expanduser(path))
     path = path.replace('\\', '/')
-    if path.startswith('./'):
-        return path[2:]
-    else:
-        return path
+    return path[2:] if path.startswith('./') else path
 
 
 def get_file_properties(job_id: str, task_id: str, file_path: str, batch_client):
@@ -330,16 +324,18 @@ def format_batch_exception(batch_exception):
     Returns the contents of the specified Batch exception.
     :param batch_exception:
     """
-    l = []
-    l.append("-------------------------------------------")
+    l = ["-------------------------------------------"]
     if batch_exception.error and \
             batch_exception.error.message and \
             batch_exception.error.message.value:
         l.append(batch_exception.error.message.value)
         if batch_exception.error.values:
             l.append('')
-            for mesg in batch_exception.error.values:
-                l.append("{0}:\t{1}".format(mesg.key, mesg.value))
+            l.extend(
+                "{0}:\t{1}".format(mesg.key, mesg.value)
+                for mesg in batch_exception.error.values
+            )
+
     l.append("-------------------------------------------")
 
     return '\n'.join(l)

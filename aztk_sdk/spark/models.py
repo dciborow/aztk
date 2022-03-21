@@ -13,11 +13,14 @@ class Cluster(aztk_sdk.models.Cluster):
         if pool.metadata is None:
             return False
 
-        for metadata in pool.metadata:
-            if metadata.name == constants.AZTK_SOFTWARE_METADATA_KEY:
-                return metadata.value == aztk_sdk.models.Software.spark
-
-        return False
+        return next(
+            (
+                metadata.value == aztk_sdk.models.Software.spark
+                for metadata in pool.metadata
+                if metadata.name == constants.AZTK_SOFTWARE_METADATA_KEY
+            ),
+            False,
+        )
 
     def __get_master_node_id(self):
         """
@@ -26,11 +29,14 @@ class Cluster(aztk_sdk.models.Cluster):
         if self.pool.metadata is None:
             return None
 
-        for metadata in self.pool.metadata:
-            if metadata.name == constants.MASTER_NODE_METADATA_KEY:
-                return metadata.value
-
-        return None
+        return next(
+            (
+                metadata.value
+                for metadata in self.pool.metadata
+                if metadata.name == constants.MASTER_NODE_METADATA_KEY
+            ),
+            None,
+        )
 
 class RemoteLogin(aztk_sdk.models.RemoteLogin):
     pass

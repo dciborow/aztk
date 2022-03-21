@@ -48,38 +48,34 @@ def print_cluster(client, cluster: aztk_sdk.spark.models.Cluster):
             print_format.format(
                 node.id,
                 node.state.value,
-                '{}:{}'.format(remote_login_settings.ip_address, remote_login_settings.port),
-                '*' if node.id == cluster.master_node_id else '')
+                f'{remote_login_settings.ip_address}:{remote_login_settings.port}',
+                '*' if node.id == cluster.master_node_id else '',
+            )
         )
+
     log.info('')
 
 def __pretty_node_count(cluster: aztk_sdk.spark.models.Cluster) -> str:
     if cluster.pool.allocation_state is batch_models.AllocationState.resizing:
-        return '{} -> {}'.format(
-            cluster.total_current_nodes,
-            cluster.total_target_nodes)
+        return f'{cluster.total_current_nodes} -> {cluster.total_target_nodes}'
     else:
-        return '{}'.format(cluster.total_current_nodes)
+        return f'{cluster.total_current_nodes}'
 
-def __pretty_dedicated_node_count(cluster: aztk_sdk.spark.models.Cluster)-> str:
+def __pretty_dedicated_node_count(cluster: aztk_sdk.spark.models.Cluster) -> str:
     if (cluster.pool.allocation_state is batch_models.AllocationState.resizing
             or cluster.pool.state is batch_models.PoolState.deleting)\
             and cluster.current_dedicated_nodes != cluster.target_dedicated_nodes:
-        return '{} -> {}'.format(
-            cluster.current_dedicated_nodes,
-            cluster.target_dedicated_nodes)
+        return f'{cluster.current_dedicated_nodes} -> {cluster.target_dedicated_nodes}'
     else:
-        return '{}'.format(cluster.current_dedicated_nodes)
+        return f'{cluster.current_dedicated_nodes}'
 
-def __pretty_low_pri_node_count(cluster: aztk_sdk.spark.models.Cluster)-> str:
+def __pretty_low_pri_node_count(cluster: aztk_sdk.spark.models.Cluster) -> str:
     if (cluster.pool.allocation_state is batch_models.AllocationState.resizing
             or cluster.pool.state is batch_models.PoolState.deleting)\
             and cluster.current_low_pri_nodes != cluster.target_low_pri_nodes:
-        return '{} -> {}'.format(
-            cluster.current_low_pri_nodes,
-            cluster.target_low_pri_nodes)
+        return f'{cluster.current_low_pri_nodes} -> {cluster.target_low_pri_nodes}'
     else:
-        return '{}'.format(cluster.current_low_pri_nodes)
+        return f'{cluster.current_low_pri_nodes}'
 
 def print_clusters(clusters: List[aztk_sdk.spark.models.Cluster]):
     print_format = '{:<34}| {:<10}| {:<20}| {:<7}'
@@ -180,7 +176,7 @@ def ssh_in_master(
     ssh_command.add_argument(
         "{0}@{1} -p {2}".format(user, master_node_ip, master_node_port))
 
-    if host is False:
+    if not host:
         ssh_command.add_argument("\'sudo docker exec -it spark /bin/bash\'")
 
     command = ssh_command.to_str()

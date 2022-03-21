@@ -54,14 +54,10 @@ def execute(args: typing.NamedTuple):
     print_cluster_conf(cluster_conf)
 
     if cluster_conf.custom_scripts:
-        custom_scripts = []
-        for custom_script in cluster_conf.custom_scripts:
-            custom_scripts.append(
-                aztk_sdk.spark.models.CustomScript(
+        custom_scripts = [aztk_sdk.spark.models.CustomScript(
                     script=custom_script['script'],
                     run_on=custom_script['runOn']
-                )
-            )
+                ) for custom_script in cluster_conf.custom_scripts]
     else:
         custom_scripts = None
 

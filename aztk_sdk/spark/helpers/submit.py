@@ -79,16 +79,12 @@ def submit_application(spark_client, cluster_id, application, wait: bool = False
     Submit a spark app
     """
 
-    resource_files = []
-
     app_resource_file = helpers.upload_file_to_container(container_name=application.name,
                                                          file_path=application.application,
                                                          blob_client=spark_client.blob_client,
                                                          use_full_path=False)
 
-    # Upload application file
-    resource_files.append(app_resource_file)
-
+    resource_files = [app_resource_file]
     # Upload dependent JARS
     jar_resource_file_paths = []
     for jar in application.jars:

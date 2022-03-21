@@ -52,9 +52,7 @@ def parse_common_args(args: NamedTuple):
 
 
 def run_software(args: NamedTuple):
-    softwares = {}
-    softwares[aztk_sdk.models.Software.spark] = spark.execute
-
+    softwares = {aztk_sdk.models.Software.spark: spark.execute}
     func = softwares[args.software]
     func(args)
 
